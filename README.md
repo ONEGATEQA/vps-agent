@@ -1,222 +1,147 @@
-# vps-agent
+<p align="center">
+  <img src="assets/banner.png" alt="vps-agent" width="100%">
+</p>
 
-**Run a persistent AI coding agent on a $6/month VPS.**
-
-Most developers run AI coding agents on their laptop. The session dies when you close the lid. You come back the next day to a blank terminal and lost context.
-
-This guide shows how to move your agent to a cheap VPS — always on, always connected, picking up exactly where you left off.
-
----
-
-## Why VPS
-
-| Laptop agent | VPS agent |
-|---|---|
-| Session dies when laptop sleeps | Session runs 24/7 |
-| Context lost on disconnect | tmux keeps everything alive |
-| Slow on battery | Dedicated CPU/RAM |
-| One machine | SSH from anywhere |
-| Local git operations only | Direct push/PR from server |
-
-**Cost**: Hetzner CX22 or DigitalOcean Basic — $4–6/month. Less than a coffee.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/platform-Ubuntu%2024.04-blue.svg" alt="Ubuntu 24.04">
+  <img src="https://img.shields.io/badge/cost-%246%2Fmonth-brightgreen.svg" alt="$6/month">
+</p>
 
 ---
 
-## What you get
+**vps-agent** runs your AI coding agent on a cheap VPS instead of your laptop. The session never dies. You SSH in from your phone at midnight, pick up exactly where you left off, and disconnect — the agent keeps working.
+
+Your laptop session dies when you close the lid. A $6 VPS runs 24/7.
+
+---
+
+## What it does
+
+One command bootstraps a fresh Ubuntu 24.04 VPS with a structured tmux workspace. Each project gets its own named session with four windows — agent, git, tests, logs. You SSH in from anywhere. The agent commits to branches and opens PRs. You review and merge. The agent never merges its own work.
 
 ```
-Your phone / laptop / tablet
-        │  SSH
-        ▼
-   VPS (Ubuntu 24.04)
-        │
-   tmux session ──── agent workspace
-        │                  │
-        │            git worktrees
-        │            test runner
-        └──── always alive, always ready
+ssh user@your-vps
+attach.sh my-project        # pick up from anywhere
 ```
-
-- **Persistent sessions** via tmux — disconnect anytime, agent keeps running
-- **Multiple projects** in separate tmux windows
-- **One command** to attach from any device
-- **Structured workflow** — agent commits to branches, you merge
 
 ---
 
 ## Quick start
 
-### 1. Provision a VPS
+**1. Get a VPS** — any Ubuntu 24.04 host works.
 
-Any Ubuntu 24.04 VPS works. Minimum specs:
+| Provider | Spec | Price |
+|---|---|---|
+| [Hetzner CX22](https://hetzner.com) | 2 vCPU · 4 GB RAM · 40 GB | ~$4/mo |
+| [DigitalOcean Basic](https://digitalocean.com) | 1 vCPU · 1 GB RAM · 25 GB | $6/mo |
+| [Vultr Cloud Compute](https://vultr.com) | 1 vCPU · 1 GB RAM · 25 GB | $6/mo |
 
-```
-RAM:  2 GB
-CPU:  2 vCPU
-Disk: 20 GB SSD
-```
-
-Providers: [Hetzner](https://hetzner.com) · [DigitalOcean](https://digitalocean.com) · [Vultr](https://vultr.com)
-
-### 2. Bootstrap the server
-
-```bash
-# On your VPS (as root or sudo user)
-curl -fsSL https://raw.githubusercontent.com/ONEGATEQA/vps-agent/main/setup/bootstrap.sh | bash
-```
-
-Or clone and run manually:
+**2. Bootstrap**
 
 ```bash
 git clone https://github.com/ONEGATEQA/vps-agent.git
 cd vps-agent
-bash setup/bootstrap.sh
+sudo bash setup/bootstrap.sh
 ```
 
-### 3. Start your agent session
+**3. Add your SSH key**
+
+```bash
+echo 'YOUR_PUBLIC_KEY' >> ~/.ssh/authorized_keys
+```
+
+**4. Start a project session**
 
 ```bash
 bash scripts/new-session.sh my-project
 ```
 
-### 4. Attach from any device
+**5. SSH in from anywhere**
 
 ```bash
 ssh user@your-vps
-bash scripts/attach.sh my-project
+attach.sh my-project
 ```
 
 ---
 
-## Session structure
+## Session layout
 
-Each project gets its own named tmux session:
+Every project gets four tmux windows:
 
 ```
 tmux session: my-project
-├── window 0: agent        ← AI coding agent runs here
-├── window 1: git          ← git operations, PR creation
-├── window 2: tests        ← test runner
-└── window 3: logs         ← server/app logs
+├── [0] agent    ← give tasks here, read output here
+├── [1] git      ← branch management, PR checks
+├── [2] tests    ← test runner
+└── [3] logs     ← app/server output
 ```
 
-Switch between projects:
-
-```bash
-tmux switch -t other-project
-```
-
-List all active sessions:
-
-```bash
-tmux ls
-```
-
----
-
-## File structure
-
-```
-vps-agent/
-├── setup/
-│   ├── bootstrap.sh          # One-time VPS setup
-│   ├── install-tools.sh      # Dev tools (git, node, docker, etc.)
-│   └── configure-ssh.sh      # Hardened SSH config
-├── scripts/
-│   ├── new-session.sh        # Create a new project session
-│   ├── attach.sh             # Attach to existing session
-│   ├── list-sessions.sh      # Show all sessions and status
-│   └── kill-session.sh       # Clean up a project session
-├── docs/
-│   ├── workflow.md           # The agent workflow model
-│   ├── multi-project.md      # Running multiple projects
-│   └── ssh-from-phone.md     # Mobile SSH setup
-└── examples/
-    ├── session-rules.md      # Example agent instructions
-    └── AGENT.md              # Drop this in any project repo
-```
-
----
-
-## The workflow model
-
-The agent handles implementation. You handle decisions.
-
-```
-You (anywhere)
-    │
-    ├─ SSH into VPS
-    ├─ attach to project session
-    └─ give the agent a task
-            │
-            ▼
-        Agent works:
-        reads code → implements → runs tests → commits → pushes branch → opens PR
-            │
-            ▼
-        Agent stops and reports
-            │
-            ▼
-        You review the PR on GitHub
-        You merge (or reject)
-            │
-            ▼
-        Next task
-```
-
-**The agent never merges its own PRs. You do.**
-
-See [docs/workflow.md](docs/workflow.md) for the full model.
+Switch: `Ctrl+B` → window number. Detach: `Ctrl+B D`. Reconnect: `attach.sh`.
 
 ---
 
 ## Agent instructions
 
-Drop an `AGENT.md` file in your project repo to give the agent its operating rules. Example in [examples/AGENT.md](examples/AGENT.md).
+Drop `examples/AGENT.md` into your project repo as `AGENT.md`. It sets the rules:
 
-Core rules every project should have:
+- Agent commits to branches, never to main
+- Agent opens PRs, never merges them
+- Agent stops and reports — you decide what happens next
 
 ```markdown
-## What requires my approval before you proceed
+## What requires my approval
 
 - Merging any pull request
-- Deploying to beta or production
+- Deploying to any environment
 - Destructive database operations
-- Any change that cannot be reverted with git revert
+- Any irreversible change
 ```
+
+See [examples/AGENT.md](examples/AGENT.md) for the full template.
+
+---
+
+## Scripts
+
+| Script | What it does |
+|---|---|
+| `setup/bootstrap.sh` | One-time VPS setup — packages, SSH hardening, firewall, tmux config |
+| `scripts/new-session.sh <name>` | Create a new project session with 4 windows |
+| `scripts/attach.sh [name]` | Attach to a session (interactive picker if no name given) |
+| `scripts/list-sessions.sh` | Show all active sessions |
+| `scripts/kill-session.sh <name>` | Clean up a session |
 
 ---
 
 ## SSH from your phone
 
+iOS: [Blink Shell](https://blink.sh) · Android: [Termux](https://f-droid.org/en/packages/com.termux/)
+
 Full guide: [docs/ssh-from-phone.md](docs/ssh-from-phone.md)
 
-Short version:
-- iOS: **Blink Shell** or **Termius**
-- Android: **Termux** or **Termius**
-- Generate a key on your phone, add it to `~/.ssh/authorized_keys` on the VPS
-
 ---
 
-## Security
+## Files
 
-- SSH key auth only (password login disabled by bootstrap)
-- `fail2ban` installed by default
-- Non-root user for agent work
-- Agent runs in its own tmux session, isolated from system
-
----
-
-## Contributing
-
-Issues and PRs welcome. Keep it simple — this repo is a guide, not a framework.
+```
+vps-agent/
+├── setup/bootstrap.sh         one-time server setup
+├── scripts/
+│   ├── new-session.sh         create a project session
+│   ├── attach.sh              attach from any device
+│   ├── list-sessions.sh       list active sessions
+│   └── kill-session.sh        remove a session
+├── docs/
+│   ├── workflow.md            the human/agent split model
+│   └── ssh-from-phone.md      iOS and Android SSH setup
+└── examples/
+    └── AGENT.md               drop this in any project repo
+```
 
 ---
 
 ## License
 
-MIT
-
----
-
-Built by [OneGate](https://onegate.qa)
+MIT — [onegate.qa](https://onegate.qa)
