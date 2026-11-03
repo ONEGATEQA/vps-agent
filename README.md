@@ -3,20 +3,6 @@
 </p>
 
 <p align="center">
-
-```
-░█▀▀▀█ ░█▄─░█ ░█▀▀▀ ░█▀▀█ ─█▀▀█ ▀▀█▀▀ ░█▀▀▀ ░█▀▀█ ─█▀▀█
-░█──░█ ░█░█░█ ░█▀▀░ ░█─▄▄ ░█▄▄█ ─░█── ░█▀▀░ ░█─░█ ░█▄▄█
-░█▄▄▄█ ░█──▀█ ░█▄▄▄ ░█▄▄█ ░█─░█ ─░█── ░█▄▄▄ ─▀▀█▄ ░█─░█
-
-░█──░█ ░█▀▀█ ░█▀▀░ ─── ─█▀▀█ ░█▀▀█ ░█▀▀▀ ░█▄─░█ ▀▀█▀▀
-─▀██▀─ ░█▀▀▄ ─▀▀▄─ ─▄─ ░█▄▄█ ░█─▄▄ ░█▀▀░ ░█░█░█ ─░█──
-──▀▀── ░█──── ─▄▄▄▀ ─── ░█─░█ ░█▄▄█ ░█▄▄▄ ░█──▀█ ─░█──
-```
-
-</p>
-
-<p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/platform-Ubuntu%2024.04-blue.svg" alt="Ubuntu 24.04">
   <img src="https://img.shields.io/badge/cost-%246%2Fmonth-brightgreen.svg" alt="$6/month">
